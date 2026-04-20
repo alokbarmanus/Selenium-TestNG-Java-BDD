@@ -60,4 +60,5 @@ public class LoginPageObjects {
         clickOnLoginButton();
     }
     //comment adding to check jenkins job trigger on code change
+    //
 }
