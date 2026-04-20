@@ -1,17 +1,8 @@
 pipeline {
     agent any
 
-    parameters {
-        booleanParam(
-            name: 'RUN_TESTS',
-            defaultValue: true,
-            description: 'Run the TestNG Selenium suite'
-        )
-        choice(
-            name: 'TEST_ENV',
-            choices: ['dev', 'sit', 'uat'],
-            description: 'Target environment for the test suite'
-        )
+    triggers {
+        githubPush()
     }
 
     tools {
@@ -20,7 +11,8 @@ pipeline {
     }
 
     environment {
-        CI = 'true'
+        CI       = 'true'
+        TEST_ENV = 'dev'
     }
 
     options {
@@ -43,16 +35,12 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            when {
-                expression { return params.RUN_TESTS }
-            }
+        stage('Run Tests - DEV') {
             steps {
-                sh "mvn -B -ntp test -Denv=${params.TEST_ENV} -Dheadless=true"
+                sh "mvn -B -ntp test -Denv=${env.TEST_ENV} -Dheadless=true"
             }
             post {
                 always {
-                    // TestNG / Surefire XML results
                     junit testResults: 'target/surefire-reports/**/*.xml',
                           allowEmptyResults: true
 
@@ -66,8 +54,6 @@ pipeline {
                                 alwaysLinkToLastBuild : true,
                                 allowMissing          : true
                             ])
-                        } else {
-                            echo 'Cucumber report not found at target/cucumber-reports/index.html. Skipping publish.'
                         }
 
                         if (fileExists('target/extent-reports/TestExecutionReport.html')) {
@@ -79,26 +65,20 @@ pipeline {
                                 alwaysLinkToLastBuild : true,
                                 allowMissing          : true
                             ])
-                        } else {
-                            echo 'Extent report not found at target/extent-reports/TestExecutionReport.html. Skipping publish.'
                         }
 
-                        String testngReportFile = "${params.TEST_ENV.toUpperCase()}_Execution.html"
-                        if (fileExists("target/surefire-reports/Selenium-TestNG-Java-BDD/${testngReportFile}")) {
+                        if (fileExists('target/surefire-reports/Selenium-TestNG-Java-BDD/DEV_Execution.html')) {
                             publishHTML(target: [
                                 reportName            : 'TestNG Report',
                                 reportDir             : 'target/surefire-reports/Selenium-TestNG-Java-BDD',
-                                reportFiles           : testngReportFile,
+                                reportFiles           : 'DEV_Execution.html',
                                 keepAll               : true,
                                 alwaysLinkToLastBuild : true,
                                 allowMissing          : true
                             ])
-                        } else {
-                            echo "TestNG report not found at target/surefire-reports/Selenium-TestNG-Java-BDD/${testngReportFile}. Skipping publish."
                         }
                     }
 
-                    // Archive all report artifacts
                     archiveArtifacts artifacts: '''
                         target/surefire-reports/**,
                         target/extent-reports/**,
@@ -112,10 +92,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully for environment: ${params.TEST_ENV}"
+            echo 'DEV pipeline completed successfully.'
         }
         failure {
-            echo "Pipeline failed for environment: ${params.TEST_ENV}"
+            echo 'DEV pipeline failed.'
         }
         always {
             cleanWs()
