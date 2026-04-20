@@ -1,0 +1,45 @@
+# Build output
+/target/
+
+# Test output and reports
+/test-output/
+/surefire-reports/
+/failsafe-reports/
+/test-results/
+
+# Cucumber reports
+/cucumber-reports/
+/cucumber-html-reports/
+
+# Extent reports
+/extent-reports/
+
+# Logs
+/logs/
+*.log
+
+# IDE metadata
+/.idea/
+*.iml
+/.classpath
+/.project
+/.settings/
+.factorypath
+
+# VS Code: ignore local files, keep shared workspace config
+/.vscode/*
+!/.vscode/settings.json
+!/.vscode/launch.json
+!/.vscode/tasks.json
+!/.vscode/extensions.json
+
+# Runtime artifacts
+*.tmp
+*.class
+
+# Maven wrapper (if not committed intentionally)
+# .mvn/wrapper/maven-wrapper.jar
+
+# OS files
+.DS_Store
+Thumbs.db
