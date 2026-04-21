@@ -66,6 +66,13 @@ public class ExtentReportListener implements ITestListener {
         if (test != null) {
             test.log(status, message);
         }
+
+        // Mirror to Allure as a named step for unified log visibility
+        try {
+            io.qameta.allure.Allure.step("[" + status.name() + "] " + message);
+        } catch (Exception ignored) {
+            // Allure step logging is best-effort
+        }
     }
 
     private static ExtentReports buildExtentReports() {

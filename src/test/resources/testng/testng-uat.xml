@@ -5,6 +5,7 @@
     <listeners>
         <listener class-name="com.seleniumproject.listeners.EnvironmentListener"/>
         <listener class-name="com.seleniumproject.listeners.ExtentReportListener"/>
+        <listener class-name="com.seleniumproject.listeners.AllureReportListener"/>
     </listeners>
     
     <test name="UAT_Execution">

@@ -1,6 +1,7 @@
 package com.seleniumproject.hooks;
 
 import com.seleniumproject.context.TestContext;
+import com.seleniumproject.listeners.AllureReportListener;
 import com.seleniumproject.listeners.ExtentReportListener;
 import com.seleniumproject.utils.JsonDataLoader;
 import com.seleniumproject.utils.RuntimeMemoryManager;
@@ -61,6 +62,7 @@ public class Hooks {
             ExtentReportListener.logFail("Step failed in scenario: " + scenario.getName());
             ExtentReportListener.attachScreenshot(screenshotPath, "Failed Step Screenshot");
         }
+        AllureReportListener.attachScreenshot("Failed Step Screenshot");
         FAILURE_SCREENSHOT_CAPTURED.set(true);
     }
 
