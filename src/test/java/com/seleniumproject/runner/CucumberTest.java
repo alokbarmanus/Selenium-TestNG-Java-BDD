@@ -15,7 +15,11 @@ import java.util.Optional;
 @CucumberOptions(
     features = "classpath:features",
     glue = {"com.seleniumproject.steps", "com.seleniumproject.hooks"},
-    plugin = {"pretty", "html:target/cucumber-reports"}
+    plugin = {
+        "pretty",
+        "html:target/cucumber-reports/cucumber.html",
+        "json:target/cucumber-reports/cucumber.json"
+    }
 )
 public class CucumberTest extends AbstractTestNGCucumberTests {
 
