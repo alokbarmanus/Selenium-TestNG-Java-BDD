@@ -140,18 +140,18 @@ public class TestBase extends BaseStepDefinitions {
             return Boolean.parseBoolean(headlessOverride.trim());
         }
 
-        String githubActions = System.getenv("GITHUB_ACTIONS");
-        if ("true".equalsIgnoreCase(githubActions)) {
-            return true;
-        }
-
-        String ci = System.getenv("CI");
-        if ("true".equalsIgnoreCase(ci)) {
-            return true;
-        }
-
-        // Always headless when running on Selenium Grid
+        // When using Selenium Grid, never force headless.
+        // The Grid's standalone-chrome container has its own Xvfb display and VNC server;
+        // running Chrome headless bypasses that display and breaks video recording.
         if (resolveGridUrl() != null) {
+            return false;
+        }
+
+        // For non-Grid CI runs, force headless (no display available)
+        if ("true".equalsIgnoreCase(System.getenv("GITHUB_ACTIONS"))) {
+            return true;
+        }
+        if ("true".equalsIgnoreCase(System.getenv("CI"))) {
             return true;
         }
 
