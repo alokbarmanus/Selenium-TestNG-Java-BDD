@@ -89,6 +89,7 @@ jobs:
       - name: Start Selenium Grid with video recording
         run: |
           mkdir -p ${{ github.workspace }}/videos
+          chmod 777 ${{ github.workspace }}/videos
           docker network create grid
 
           docker run -d --name selenium-chrome \
@@ -101,13 +102,13 @@ jobs:
           docker run -d --name selenium-video \
             --network grid \
             -e DISPLAY_CONTAINER_NAME=selenium-chrome \
-            -e SE_VIDEO_FILE_NAME=test-recording.mp4 \
+            -e SE_VIDEO_FILE_NAME=auto \
             -v ${{ github.workspace }}/videos:/videos \
             selenium/video:latest
 
           echo "Waiting for Selenium Grid to be ready..."
           for i in $(seq 1 20); do
-            STATUS=$(curl -s http://localhost:4444/wd/hub/status | grep -c '"ready": true' || true)
+            STATUS=$(curl -s http://localhost:4444/status | grep -c 'ready' || true)
             if [ "$STATUS" -gt "0" ]; then
               echo "Selenium Grid is ready."
               break
@@ -122,9 +123,13 @@ jobs:
       - name: Stop video recording
         if: always()
         run: |
-          docker stop selenium-video || true
+          # Stop Chrome first — VNC disconnects, signalling ffmpeg in the video container to finalise the MP4
           docker stop selenium-chrome || true
+          echo "Chrome stopped. Waiting up to 30s for video container to finalise recording..."
+          docker wait selenium-video 2>/dev/null || docker stop --time=30 selenium-video || true
           docker network rm grid || true
+          echo "=== Videos directory ==="
+          ls -lh ${{ github.workspace }}/videos/ || echo "Videos directory is empty"
 
       - name: Upload test reports and videos
         if: always()
@@ -136,4 +141,4 @@ jobs:
             target/extent-reports
             target/cucumber-reports
             test-output
-            videos/
+            ${{ github.workspace }}/videos/
