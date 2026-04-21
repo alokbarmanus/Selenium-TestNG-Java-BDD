@@ -13,6 +13,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import java.awt.Dimension;
@@ -149,6 +150,11 @@ public class TestBase extends BaseStepDefinitions {
             return true;
         }
 
+        // Always headless when running on Selenium Grid
+        if (resolveGridUrl() != null) {
+            return true;
+        }
+
         return Boolean.parseBoolean(getProperty("headless"));
     }
 
@@ -222,7 +228,7 @@ public class TestBase extends BaseStepDefinitions {
 
     private WebDriver createRemoteDriver(String browserName, boolean headless, int viewportWidth, int viewportHeight, String viewportMode, String gridUrl) {
         try {
-            URL remoteUrl = new URL(gridUrl);
+            URL remoteUrl = URI.create(gridUrl).toURL();
             switch (browserName) {
                 case "firefox":
                     return new RemoteWebDriver(remoteUrl, buildFirefoxOptions(headless, viewportWidth, viewportHeight));

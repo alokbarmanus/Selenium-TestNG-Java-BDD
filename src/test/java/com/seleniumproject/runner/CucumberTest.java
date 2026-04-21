@@ -20,7 +20,7 @@ import java.util.Optional;
 public class CucumberTest extends AbstractTestNGCucumberTests {
 
     @Override
-    @DataProvider
+    @DataProvider(parallel = true)
     public Object[][] scenarios() {
         Object[][] baseScenarios = super.scenarios();
         List<Object[]> expandedScenarios = new ArrayList<>();

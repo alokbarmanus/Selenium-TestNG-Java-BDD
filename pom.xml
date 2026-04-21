@@ -19,6 +19,7 @@
         <selenium.version>4.43.0</selenium.version>
         <cucumber.version>7.34.3</cucumber.version>
         <testng.version>7.8.0</testng.version>
+        <thread.count>1</thread.count>
     </properties>
 
     <dependencies>
@@ -100,6 +101,12 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng/testng-${env}.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <properties>
+                        <property>
+                            <name>dataproviderthreadcount</name>
+                            <value>${thread.count}</value>
+                        </property>
+                    </properties>
                 </configuration>
             </plugin>
             <plugin>

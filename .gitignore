@@ -33,6 +33,9 @@
 !/.vscode/tasks.json
 !/.vscode/extensions.json
 
+# VS Code Java Upgrade tool artifacts
+/.github/java-upgrade/
+
 # Runtime artifacts
 *.tmp
 *.class
