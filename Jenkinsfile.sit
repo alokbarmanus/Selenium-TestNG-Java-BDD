@@ -11,8 +11,9 @@ pipeline {
     }
 
     environment {
-        CI       = 'true'
-        TEST_ENV = 'sit'
+        CI                = 'true'
+        TEST_ENV          = 'sit'
+        JAVA_TOOL_OPTIONS = '-Dfile.encoding=UTF-8'
     }
 
     options {
