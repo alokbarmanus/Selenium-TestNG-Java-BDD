@@ -130,6 +130,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <skip>${skipTests}</skip>
                             <projectName>${project.name}</projectName>
                             <outputDirectory>${project.build.directory}/cucumber-reports</outputDirectory>
                             <inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>

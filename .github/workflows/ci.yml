@@ -153,7 +153,7 @@ jobs:
           THREAD_COUNT: ${{ github.event_name == 'workflow_dispatch' && inputs.thread_count || '1' }}
           TEST_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.test_env || 'dev' }}
         run: |
-          mvn -B -ntp test \
+          mvn -B -ntp verify \
             -Denv=$TEST_ENV \
             -Dgrid.url=http://localhost:4444 \
             -Dthread.count=$THREAD_COUNT
