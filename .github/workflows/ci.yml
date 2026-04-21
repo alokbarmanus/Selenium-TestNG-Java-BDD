@@ -214,3 +214,35 @@ jobs:
             target/surefire-reports/
             target/extent-reports/
             target/cucumber-reports/
+
+      - name: Notify Slack
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && ':white_check_mark:' || ':x:' }} *Java CI – Test Job ${{ job.status }}*",
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    { "type": "mrkdwn", "text": "*Status:*\n${{ job.status }}" },
+                    { "type": "mrkdwn", "text": "*Environment:*\n${{ github.event_name == 'workflow_dispatch' && inputs.test_env || 'dev' }}" },
+                    { "type": "mrkdwn", "text": "*Branch:*\n${{ github.ref_name }}" },
+                    { "type": "mrkdwn", "text": "*Triggered by:*\n${{ github.actor }}" }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View Run" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }

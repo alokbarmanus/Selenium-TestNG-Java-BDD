@@ -1,6 +1,7 @@
 package com.seleniumproject.runner;
 
 import com.seleniumproject.utils.JsonDataLoader;
+import com.seleniumproject.listeners.RetryAnalyzer;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import io.cucumber.testng.FeatureWrapper;
@@ -51,7 +52,7 @@ public class CucumberTest extends AbstractTestNGCucumberTests {
     }
 
     @Override
-    @Test(dataProvider = "scenarios", alwaysRun = true)
+    @Test(dataProvider = "scenarios", alwaysRun = true, retryAnalyzer = RetryAnalyzer.class)
     public void runScenario(PickleWrapper pickleWrapper, FeatureWrapper featureWrapper) {
         super.runScenario(pickleWrapper, featureWrapper);
     }
