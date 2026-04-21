@@ -18,6 +18,9 @@
 /allure-results/
 /allure-report/
 
+# Allure CLI binary (downloaded by allure-maven plugin)
+/.allure/
+
 # Logs
 /logs/
 *.log
