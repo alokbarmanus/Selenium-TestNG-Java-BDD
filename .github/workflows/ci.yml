@@ -86,10 +86,41 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Run TestNG suite
-        run: mvn -B -ntp test -Denv=${{ github.event_name == 'workflow_dispatch' && inputs.test_env || 'dev' }} -Dheadless=true
+      - name: Start Selenium Grid with video recording
+        run: |
+          mkdir -p ${{ github.workspace }}/videos
+          docker network create grid
 
-      - name: Upload test reports
+          docker run -d --name selenium-chrome \
+            --network grid \
+            --shm-size=2g \
+            -p 4444:4444 \
+            -e SE_VNC_NO_PASSWORD=1 \
+            selenium/standalone-chrome:latest
+
+          docker run -d --name selenium-video \
+            --network grid \
+            -e DISPLAY_CONTAINER_NAME=selenium-chrome \
+            -e SE_VIDEO_FILE_NAME=test-recording.mp4 \
+            -v ${{ github.workspace }}/videos:/videos \
+            selenium/video:ffmpeg-7.1-20250130
+
+          echo "Waiting for Selenium Grid to be ready..."
+          timeout 60 bash -c \
+            'until curl -sSf http://localhost:4444/wd/hub/status 2>/dev/null | grep -q "\"ready\": true"; do sleep 3; done'
+          echo "Selenium Grid is ready."
+
+      - name: Run TestNG suite on Selenium Grid
+        run: mvn -B -ntp test -Denv=${{ github.event_name == 'workflow_dispatch' && inputs.test_env || 'dev' }} -Dgrid.url=http://localhost:4444
+
+      - name: Stop video recording
+        if: always()
+        run: |
+          docker stop selenium-video || true
+          docker stop selenium-chrome || true
+          docker network rm grid || true
+
+      - name: Upload test reports and videos
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -99,3 +130,4 @@ jobs:
             target/extent-reports
             target/cucumber-reports
             test-output
+            videos/
