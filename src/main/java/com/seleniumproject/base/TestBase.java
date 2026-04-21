@@ -180,9 +180,23 @@ public class TestBase extends BaseStepDefinitions {
         }
     }
 
+    private String resolveGridUrl() {
+        // System property takes highest priority: -Dgrid.url=http://localhost:4444
+        String sysProp = System.getProperty("grid.url");
+        if (sysProp != null && !sysProp.isBlank()) {
+            return sysProp.trim();
+        }
+        // Fall back to properties file (safe default: commented out in env.properties)
+        String propFile = getProperty("grid.url");
+        if (propFile != null && !propFile.isBlank()) {
+            return propFile.trim();
+        }
+        return null;
+    }
+
     private WebDriver createDriver(String browserName, boolean headless, int viewportWidth, int viewportHeight, String viewportMode) {
         String normalizedBrowser = browserName == null ? "chrome" : browserName.trim().toLowerCase();
-        String gridUrl = getProperty("grid.url");
+        String gridUrl = resolveGridUrl();
 
         if (gridUrl != null && !gridUrl.isBlank()) {
             System.out.println("Grid URL: " + gridUrl);
