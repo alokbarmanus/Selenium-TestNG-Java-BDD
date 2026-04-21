@@ -9,7 +9,11 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
@@ -178,6 +182,13 @@ public class TestBase extends BaseStepDefinitions {
 
     private WebDriver createDriver(String browserName, boolean headless, int viewportWidth, int viewportHeight, String viewportMode) {
         String normalizedBrowser = browserName == null ? "chrome" : browserName.trim().toLowerCase();
+        String gridUrl = getProperty("grid.url");
+
+        if (gridUrl != null && !gridUrl.isBlank()) {
+            System.out.println("Grid URL: " + gridUrl);
+            return createRemoteDriver(normalizedBrowser, headless, viewportWidth, viewportHeight, viewportMode, gridUrl);
+        }
+
         try {
             switch (normalizedBrowser) {
                 case "firefox":
@@ -192,6 +203,24 @@ public class TestBase extends BaseStepDefinitions {
         } catch (Exception e) {
             System.out.println("Failed to launch " + normalizedBrowser + " browser: " + e.getMessage());
             throw e;
+        }
+    }
+
+    private WebDriver createRemoteDriver(String browserName, boolean headless, int viewportWidth, int viewportHeight, String viewportMode, String gridUrl) {
+        try {
+            URL remoteUrl = new URL(gridUrl);
+            switch (browserName) {
+                case "firefox":
+                    return new RemoteWebDriver(remoteUrl, buildFirefoxOptions(headless, viewportWidth, viewportHeight));
+                case "edge":
+                    return new RemoteWebDriver(remoteUrl, buildEdgeOptions(headless, viewportWidth, viewportHeight, viewportMode));
+                case "chromium":
+                case "chrome":
+                default:
+                    return new RemoteWebDriver(remoteUrl, buildChromeOptions(headless, viewportWidth, viewportHeight, viewportMode));
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid Selenium Grid URL: " + gridUrl, e);
         }
     }
 
