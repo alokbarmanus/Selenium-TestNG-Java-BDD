@@ -103,12 +103,18 @@ jobs:
             -e DISPLAY_CONTAINER_NAME=selenium-chrome \
             -e SE_VIDEO_FILE_NAME=test-recording.mp4 \
             -v ${{ github.workspace }}/videos:/videos \
-            selenium/video:ffmpeg-7.1-20250130
+            selenium/video:latest
 
           echo "Waiting for Selenium Grid to be ready..."
-          timeout 60 bash -c \
-            'until curl -sSf http://localhost:4444/wd/hub/status 2>/dev/null | grep -q "\"ready\": true"; do sleep 3; done'
-          echo "Selenium Grid is ready."
+          for i in $(seq 1 20); do
+            STATUS=$(curl -s http://localhost:4444/wd/hub/status | grep -c '"ready": true' || true)
+            if [ "$STATUS" -gt "0" ]; then
+              echo "Selenium Grid is ready."
+              break
+            fi
+            echo "Attempt $i: Grid not ready yet, waiting 5s..."
+            sleep 5
+          done
 
       - name: Run TestNG suite on Selenium Grid
         run: mvn -B -ntp test -Denv=${{ github.event_name == 'workflow_dispatch' && inputs.test_env || 'dev' }} -Dgrid.url=http://localhost:4444
