@@ -1,14 +1,8 @@
-name: Java CI
+name: Java CI (BACKUP - disabled)
 
+# This file is kept for reference only. All triggers removed to prevent it
+# from running alongside ci.yml. To restore, copy triggers from ci.yml.
 on:
-  push:
-    branches:
-      - "main"
-      - "develop"
-  pull_request:
-    branches:
-      - "main"
-      - "develop"
   workflow_dispatch:
     inputs:
       run_tests:
